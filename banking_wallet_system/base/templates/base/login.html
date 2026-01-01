@@ -1,0 +1,114 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<style>
+    /* Professional Font & Background */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f7f6;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    /* Container for the Project Description */
+    .demo-info {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #fff;
+        border-left: 5px solid #2c3e50;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .demo-info p {
+        margin: 10px 0;
+        font-size: 0.95rem;
+    }
+
+    .divider {
+        text-align: center;
+        font-weight: bold;
+        color: #7f8c8d;
+        margin: 30px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Modern Login Card */
+    .login-container {
+        display: flex;
+        justify-content: center;
+        padding-bottom: 50px;
+    }
+
+    .login-form {
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        width: 100%;
+        max-width: 350px;
+    }
+
+    .login-form label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        text-align: left;
+        font-size: 0.8rem;
+        color: #2c3e50;
+    }
+
+    .login-form input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #dcdde1;
+        border-radius: 4px;
+        box-sizing: border-box; /* Ensures padding doesn't affect width */
+    }
+
+    /* Professional Button - No 47% radius */
+    #login {
+        width: 100%;
+        padding: 12px;
+        background-color: #2c3e50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    #login:hover {
+        background-color: #34495e;
+    }
+</style>
+
+<div class="demo-info">
+    <p><strong>System Demonstration</strong></p>
+    <p>1. This is a Backend-Focused implementation of Relational Database Design.</p>
+    <p>2. DB Features : Transactional integrity, ledger-based accounting, and ACID correctness.</p>
+    <p>3. Database is extended to a Backend system with business logic using Django.</p>
+</div>
+
+<div class="divider">Proceed with the Demo</div>
+
+<div class="login-container">
+    <div class="login-form">
+        <form method="POST" action="{% url 'home' %}">
+            {% csrf_token %}
+            <label for="username">USERNAME</label>
+            <input type="text" name="username" id="username" placeholder="Enter username" required>
+
+            <label for="password">PASSWORD</label>
+            <input type="password" name="password" id="password" placeholder="Enter password" required>
+
+            <button type="submit" id="login">LOGIN</button>
+        </form>
+
+        <p>Are you a New User? <a href="{% url 'home' %}">Signup</a></p>
+    </div>
+</div>
+{% endblock %}

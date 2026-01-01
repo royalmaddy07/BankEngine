@@ -1,0 +1,38 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <style>
+
+    navbar ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    navbar li a {
+        display: block;
+        padding: 14px 16px;
+        text-decoration: none;
+        color: black;
+    }
+
+    navbar li a:hover {
+        background-color: #f0f0f0;
+        border-radius: 4px;
+    }
+    
+    </style>
+
+    <navbar>
+        <ul class="nav-bar">
+            <li><a href="{% url 'home' %}">HOME</a></li>
+            <li><a href="{% url 'home' %}">PERFORM TRANSACTION</a></li>
+            <li><a href="{% url 'home' %}">REQUEST STATEMENT</a></li>
+            <li><a href="{% url 'home' %}">OPEN NEW ACCOUNT</a></li>
+            <li><a href="{% url 'home' %}">VIEW PROFILE</a></li>
+        </ul>
+    </navbar>
+{% endblock %}

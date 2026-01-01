@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import Users, Transactions, Transactionstatus, Accounts, Ledgerentries, Auditlog
 
 # Registering the models created to the django admin
 admin.site.register(Users)
