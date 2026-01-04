@@ -95,9 +95,15 @@
 
 <div class="divider">Proceed with the Demo</div>
 
+{% if error %}
+    <div style="color: #e74c3c; background: #fadbd8; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center; font-size: 0.8rem; font-weight: bold;">
+        {{ error }}
+    </div>
+{% endif %}
+
 <div class="login-container">
     <div class="login-form">
-        <form method="POST" action="{% url 'home' %}">
+        <form method="POST">
             {% csrf_token %}
             <label for="username">USERNAME</label>
             <input type="text" name="username" id="username" placeholder="Enter username" required>
@@ -108,7 +114,7 @@
             <button type="submit" id="login">LOGIN</button>
         </form>
 
-        <p>Are you a New User? <a href="{% url 'home' %}">Signup</a></p>
+        <p>Are you a New User? <a href="{% url 'register' %}">Signup</a></p>
     </div>
 </div>
 {% endblock %}

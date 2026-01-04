@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # this is our Accounts table
 class Accounts(models.Model):
@@ -66,6 +67,11 @@ class Transactionstatus(models.Model):
 # this is our Users table
 class Users(models.Model):
     userid = models.BigAutoField(db_column='userID', primary_key=True)  # Field name made lowercase.
+
+    # We need to add this extra column to link our "Users" model to django's "User" model to streamline the
+    # registration and authentication step
+    auth_user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='auth_user_id', null=True)
+
     name = models.CharField(max_length=50)
     email = models.CharField(unique=True, max_length=50)
     phone = models.CharField(unique=True, max_length=10)
