@@ -88,7 +88,7 @@
             background-color: #ecfdf5;
         }
 
-        .alert-error, .alert-danger {
+        .alert-error {
             border-color: #ef4444;
             color: #991b1b;
             background-color: #fef2f2;
@@ -110,13 +110,103 @@
                 transform: translateX(0);
             }
         }
+
+        .dashboard-wrapper {
+            padding: 0 40px 50px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0 20px 0;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .section-header h3 {
+            color: var(--primary-navy);
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .account-card {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 15px 30px rgba(26, 54, 93, 0.15);
+            position: relative;
+        }
+
+        .card-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            background: rgba(255,255,255,0.15);
+            padding: 4px 12px;
+            border-radius: 50px;
+            width: fit-content;
+        }
+
+        .card-no {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            margin: 20px 0;
+        }
+
+        .balance-amt {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-action {
+            text-decoration: none;
+            background: white;
+            color: var(--primary-navy);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: var(--primary-navy);
+            color: white;
+        }
     </style>
 
     {% if messages %}
     <div class="messages-container">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
-            <span style="margin-left: 10px;">{{ message }} ✅</span>
+            {% if message.tags == 'success' %}
+                <span style="margin-left: 10px;">{{ message }} ✅</span>
+            {% else %}
+                <span style="margin-left: 10px;">{{ message }} ❌</span>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
@@ -148,6 +238,43 @@
                 <div><span class="status-pill">{{ request.user.users.status }}</span></div>
             </div>
         </div>
+    </div>
+
+    <div class="dashboard-wrapper">
+    
+        <div class="section-header">
+            <h3>Your Managed Assets</h3>
+            <div class="action-bar">
+                <a href="{% url 'new_account' %}" class="btn-action">+ New Account</a>
+                <a href="{% url 'home' %}" class="btn-action">Transfer Funds</a>
+            </div>
+        </div>
+
+        <div class="accounts-grid">
+            {% for acc in accounts %}
+            <div class="account-card">
+                <span class="card-label">{{ acc.accounttype }}</span>
+                <div class="card-no">**** **** {{ acc.accountnumber|slice:"-4:" }}</div>
+                <div class="balance-info">
+                    <div style="font-size: 0.7rem; opacity: 0.7; text-transform: uppercase;">Available Balance</div>
+                    <div class="balance-amt">₹{{ acc.balance }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="padding: 40px; background: white; border-radius: 15px; text-align: center; grid-column: 1/-1; border: 2px dashed #cbd5e1;">
+                <p style="color: #64748b;">No active ledgers found for this identity.</p>
+                <a href="{% url 'new_account' %}" class="btn-provision" style="text-decoration: none; display: inline-block; margin-top: 10px; background: var(--primary-navy); color: white; padding: 10px 20px; border-radius: 5px;">Deploy First Account</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="section-header">
+            <h3>System Audit Log (Recent Activity)</h3>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 15px; color: #94a3b8; text-align: center;">
+            Transaction ledger is currently empty.
+        </div>
+
     </div>
 
 

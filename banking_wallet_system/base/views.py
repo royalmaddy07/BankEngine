@@ -5,7 +5,7 @@ from django.utils import timezone # for storing time related fields
 from django.db import transaction, IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+import random
 
 # initialisation views : Login, Logout and Register
 from django.db import IntegrityError
@@ -77,15 +77,44 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
+    messages.success(request, 'Loggedout Successfully!')
     return redirect('login')
 
 
 # base/home page view :
 def home(request):
-    
+    accounts = Accounts.objects.filter(userid = request.user.users)
+    context = {
+        'accounts' : accounts
+    }
     return render(request, 'base/home.html', context)
 
 # view for opening new account ->
 def new_account(request):
-    
+    if request.method == 'POST':
+        accType = request.POST.get('account_type')
+        initial_balance = request.POST.get('initial_balance')
+
+        while True :
+            generated_acc_no = str(random.randint(1000000000, 9999999999))
+            if not Accounts.objects.filter(accountnumber=generated_acc_no).exists():
+                break
+        
+        try:
+            with transaction.atomic(): # start transaction to insert into the 'accounts' table
+                new_account = Accounts.objects.create(
+                    userid = request.user.users,
+                    accountnumber = generated_acc_no,
+                    accounttype = accType,
+                    balance = initial_balance,
+                    status = 'ACTIVE',
+                    createdate = timezone.now(),
+                )
+
+                messages.success(request, 'account created successfully!')
+                messages.success(request, f"Account {generated_acc_no} is now ACTIVE.")
+                return redirect('home')
+        except Exception as e:
+            messages.error(request, f"Provising error : {str(e)}")
+
     return render(request, 'base/new_account.html')
