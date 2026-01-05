@@ -2,7 +2,6 @@
 
 {% block content %}
 <style>
-    /* Professional Font & Background */
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f4f7f6;
@@ -10,7 +9,6 @@
         line-height: 1.6;
     }
 
-    /* Container for the Project Description */
     .demo-info {
         max-width: 600px;
         margin: 40px auto;
@@ -34,7 +32,6 @@
         letter-spacing: 1px;
     }
 
-    /* Modern Login Card */
     .login-container {
         display: flex;
         justify-content: center;
@@ -65,10 +62,9 @@
         margin-bottom: 20px;
         border: 1px solid #dcdde1;
         border-radius: 4px;
-        box-sizing: border-box; /* Ensures padding doesn't affect width */
+        box-sizing: border-box;
     }
 
-    /* Professional Button - No 47% radius */
     #login {
         width: 100%;
         padding: 12px;
@@ -83,6 +79,59 @@
 
     #login:hover {
         background-color: #34495e;
+    }
+
+    .messages-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        width: 350px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .alert {
+        padding: 16px 20px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid transparent;
+        background: white;
+        animation: slideIn 0.4s ease-out forwards;
+    }
+
+    .alert-success {
+        border-color: #10b981;
+        color: #065f46;
+        background-color: #ecfdf5;
+    }
+
+    .alert-error, .alert-danger {
+        border-color: #ef4444;
+        color: #991b1b;
+        background-color: #fef2f2;
+    }
+
+    .alert-info {
+        border-color: var(--primary-navy);
+        color: var(--primary-navy);
+        background-color: #eff6ff;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 </style>
 
@@ -101,12 +150,22 @@
     </div>
 {% endif %}
 
+{% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+         <span style="margin-left: 10px;">{{ message }} ✅</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
 <div class="login-container">
     <div class="login-form">
         <form method="POST">
             {% csrf_token %}
-            <label for="username">USERNAME</label>
-            <input type="text" name="username" id="username" placeholder="Enter username" required>
+            <label for="username">EMAIL</label>
+            <input type="text" name="username" id="username" placeholder="Enter email" required>
 
             <label for="password">PASSWORD</label>
             <input type="password" name="password" id="password" placeholder="Enter password" required>
@@ -117,4 +176,18 @@
         <p>Are you a New User? <a href="{% url 'register' %}">Signup</a></p>
     </div>
 </div>
+
+
+
+<script>
+    setTimeout(function() {
+        let messages = document.querySelector('.messages-container');
+        if (messages) {
+            messages.style.transition = "opacity 0.5s ease";
+            messages.style.opacity = "0";
+            setTimeout(() => messages.remove(), 500);
+        }
+    }, 5000);
+</script>
+
 {% endblock %}

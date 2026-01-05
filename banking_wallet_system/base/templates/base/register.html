@@ -120,6 +120,25 @@
         margin-left: 5px;
     }
 
+    .error-alert {
+        background-color: #fff5f5;
+        border-left: 4px solid #f56565;
+        color: #c53030;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .error-alert::before {
+        content: "⚠️";
+        margin-right: 10px;
+    }
+
     @media (max-width: 600px) {
         .form-grid { grid-template-columns: 1fr; }
         .btn-submit, .full-width { grid-column: span 1; }
@@ -131,10 +150,16 @@
     <p>Please provide your credentials to register within the Banking Engine.</p>
 </div>
 
+{% if error != None %}
+    <div class="error-alert">
+        <p>{{error}}</p>
+    </div>
+{% endif %}
+
 <div class="register-container">
     <div class="register-form-card">
         
-        <form method="POST">
+        <form method="POST" action="{% url 'register' %}">
             {% csrf_token %}
             <div class="form-grid">
                 <div class="input-group full-width">
