@@ -38,7 +38,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'banking_wallet_system.urls'
+ROOT_URLCONF = 'BankEngine.urls'
 
 TEMPLATES = [
     {
@@ -57,7 +57,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'banking_wallet_system.wsgi.application'
+WSGI_APPLICATION = 'BankEngine.wsgi.application'
 
 # Since, we are going to use an already designed database using mysql, we need to establish a connection b/w
 # our database and our django project
