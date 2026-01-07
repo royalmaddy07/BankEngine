@@ -80,59 +80,6 @@
     #login:hover {
         background-color: #34495e;
     }
-
-    .messages-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        width: 350px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .alert {
-        padding: 16px 20px;
-        border-radius: 10px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        border-left: 5px solid transparent;
-        background: white;
-        animation: slideIn 0.4s ease-out forwards;
-    }
-
-    .alert-success {
-        border-color: #10b981;
-        color: #065f46;
-        background-color: #ecfdf5;
-    }
-
-    .alert-error, .alert-danger {
-        border-color: #ef4444;
-        color: #991b1b;
-        background-color: #fef2f2;
-    }
-
-    .alert-info {
-        border-color: var(--primary-navy);
-        color: var(--primary-navy);
-        background-color: #eff6ff;
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
 </style>
 
 <div class="demo-info">
@@ -148,16 +95,6 @@
     <div style="color: #e74c3c; background: #fadbd8; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center; font-size: 0.8rem; font-weight: bold;">
         {{ error }}
     </div>
-{% endif %}
-
-{% if messages %}
-  <div class="messages-container">
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">
-         <span style="margin-left: 10px;">{{ message }} ✅</span>
-      </div>
-    {% endfor %}
-  </div>
 {% endif %}
 
 <div class="login-container">
@@ -176,18 +113,5 @@
         <p>Are you a New User? <a href="{% url 'register' %}">Signup</a></p>
     </div>
 </div>
-
-
-
-<script>
-    setTimeout(function() {
-        let messages = document.querySelector('.messages-container');
-        if (messages) {
-            messages.style.transition = "opacity 0.5s ease";
-            messages.style.opacity = "0";
-            setTimeout(() => messages.remove(), 500);
-        }
-    }, 5000);
-</script>
 
 {% endblock %}

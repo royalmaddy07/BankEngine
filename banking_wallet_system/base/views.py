@@ -92,8 +92,13 @@ def home(request):
 # view for opening new account ->
 def new_account(request):
     if request.method == 'POST':
+        verify_password = request.POST.get('verify_password')
         accType = request.POST.get('account_type')
         initial_balance = request.POST.get('initial_balance')
+
+        if not request.user.check_password(verify_password):
+            messages.error(request, "incorrect Password entered")
+            return render(request, 'base/new_account.html')
 
         while True :
             generated_acc_no = str(random.randint(1000000000, 9999999999))

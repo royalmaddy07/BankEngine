@@ -206,6 +206,59 @@
             border-radius: 50%;
             box-shadow: 0 0 8px #10b981;
         }
+
+        .messages-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid transparent;
+            background: white;
+            animation: slideIn 0.4s ease-out forwards;
+        }
+
+        .alert-success {
+            border-color: #10b981;
+            color: #065f46;
+            background-color: #ecfdf5;
+        }
+
+        .alert-error, .alert-danger {
+            border-color: #ef4444;
+            color: #991b1b;
+            background-color: #fef2f2;
+        }
+
+        .alert-info {
+            border-color: var(--primary-navy);
+            color: var(--primary-navy);
+            background-color: #eff6ff;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
     </style>
 
     <header class="header-brand">
@@ -230,47 +283,77 @@
         </navbar>
     {% endif %}
 
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                {# We use 'message.tags' to check the type #}
+                <div class="alert alert-{{ message.tags }}">
+                    {% if message.tags == 'success' %}
+                        <span style="margin-left: 10px;">{{ message }} ✅</span>
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <span style="margin-left: 10px;">{{ message }} ❌</span>
+                    {% else %}
+                        <span style="margin-left: 10px;">{{ message }} ℹ️</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% block content %}
     {% endblock %}
 
-    <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h4>BankEngine<span style="color: var(--accent-gold);">_</span></h4>
-                <p>A high-performance core banking ledger designed for ACID-compliant financial operations and real-time liquidity management.</p>
+    {% if request.user.is_authenticated %}
+        <footer class="main-footer">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h4>BankEngine<span style="color: var(--accent-gold);">_</span></h4>
+                    <p>A high-performance core banking ledger designed for ACID-compliant financial operations and real-time liquidity management.</p>
+                </div>
+
+                <div class="footer-links">
+                    <h5>Resources</h5>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Dashboard</a></li>
+                        <li><a href="{% url 'new_account' %}">Open Account</a></li>
+                        <li><a href="{% url 'transfer' %}">Fund Transfer</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h5>Support</h5>
+                    <ul>
+                        <li><a href="#">Security Protocols</a></li>
+                        <li><a href="#">API Documentation</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="footer-links">
-                <h5>Resources</h5>
-                <ul>
-                    <li><a href="{% url 'home' %}">Dashboard</a></li>
-                    <li><a href="{% url 'new_account' %}">Open Account</a></li>
-                    <li><a href="{% url 'transfer' %}">Fund Transfer</a></li>
-                </ul>
+            <div class="footer-bottom">
+                <div>
+                    &copy; 2026 BankEngine Systems v1.0.0. All rights reserved.
+                </div>
+                
+                <div class="system-status">
+                    <span class="status-indicator"></span>
+                    <span>CORE ENGINE: <strong>OPERATIONAL</strong></span>
+                    <span style="margin-left: 20px; opacity: 0.5;">|</span>
+                    <span style="margin-left: 20px;">SQL_DRIVER: <strong>CONNECTED</strong></span>
+                </div>
             </div>
+        </footer>
+    {% endif %}
 
-            <div class="footer-links">
-                <h5>Support</h5>
-                <ul>
-                    <li><a href="#">Security Protocols</a></li>
-                    <li><a href="#">API Documentation</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <div>
-                &copy; 2026 BankEngine Systems v1.0.0. All rights reserved.
-            </div>
-            
-            <div class="system-status">
-                <span class="status-indicator"></span>
-                <span>CORE ENGINE: <strong>OPERATIONAL</strong></span>
-                <span style="margin-left: 20px; opacity: 0.5;">|</span>
-                <span style="margin-left: 20px;">SQL_DRIVER: <strong>CONNECTED</strong></span>
-            </div>
-        </div>
-    </footer>
+    <script>
+        setTimeout(function() {
+            let messages = document.querySelector('.messages-container');
+            if (messages) {
+                messages.style.transition = "opacity 0.5s ease";
+                messages.style.opacity = "0";
+                setTimeout(() => messages.remove(), 500);
+            }
+        }, 5000);
+    </script>
 </body>
 </html>
