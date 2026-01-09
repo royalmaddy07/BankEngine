@@ -5,26 +5,33 @@
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
 
     <div class="dashboard-container">
-        <h2 style="color: #1a365d; margin-bottom: 30px; font-weight: 800; letter-spacing: -1px;">
-            System Dashboard / <span style="color: #3498db;">{{ request.user.users.name|upper }}</span>
-        </h2>
+        <div class="dashboard-header">
+            <h2>System Dashboard / <span>{{ request.user.users.name|upper }}</span></h2>
+            <div class="engine-id">NODE_ID: {{ request.user.id|add:"1000" }}</div>
+        </div>
         
-        <div class="profile-card">
-            <div class="data-group">
-                <span class="label">Auth Identity</span>
-                <span class="value">{{ request.user.username }}</span>
+        <div class="profile-grid">
+            <div class="data-node">
+                <span class="node-label">Auth Identity</span>
+                <span class="node-value">{{ request.user.username }}</span>
             </div>
-            <div class="data-group">
-                <span class="label">System Email</span>
-                <span class="value">{{ request.user.email }}</span>
+
+            <div class="data-node">
+                <span class="node-label">Network Email</span>
+                <span class="node-value">{{ request.user.email }}</span>
             </div>
-            <div class="data-group">
-                <span class="label">Linked Phone</span>
-                <span class="value">{{ request.user.users.phone }}</span>
+
+            <div class="data-node">
+                <span class="node-label">Verified Contact</span>
+                <span class="node-value">{{ request.user.users.phone }}</span>
             </div>
-            <div class="data-group">
-                <span class="label">Engine Status</span>
-                <div><span class="status-pill">{{ request.user.users.status }}</span></div>
+
+            <div class="data-node">
+                <span class="node-label">Account Status</span>
+                <div class="status-container">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">{{ request.user.users.status|upper }}</span>
+                </div>
             </div>
         </div>
     </div>

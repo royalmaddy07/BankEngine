@@ -136,14 +136,6 @@ def new_account(request):
 
     return render(request, 'base/new_account.html')
 
-# view for performing a transaction ->
-def transfer(request):
-    return render(request, 'base/transfer.html')
-
-# view for retrieving bank statements ->
-def statements(request):
-    return render(request, 'base/statements.html')
-
 # view logic for deactivating a ledger ->
 def deactivate_account(request, pk):
     account = Accounts.objects.get(accountid = pk, userid = request.user.users)
@@ -168,3 +160,15 @@ def deactivate_account(request, pk):
             messages.error(request, f'System Error : {str(e)}')
 
     return render(request, 'base/deactivate_account.html', context)
+
+# view for performing a transaction ->
+def transfer(request):
+    accounts = Accounts.objects.filter(userid = request.user.users)
+    context = {'accounts' : accounts}
+    if request.method == 'POST':
+        return render(request, 'base/success.html')
+    return render(request, 'base/transfer.html', context)
+
+# view for retrieving bank statements ->
+def statements(request):
+    return render(request, 'base/statements.html')

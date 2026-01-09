@@ -11,7 +11,7 @@
             Securely transfer liquidity between internal or external ledger accounts.
         </p>
 
-        <form method="POST">
+        <form method="POST" action="{% url 'transfer' %}">
             {% csrf_token %}
             
             <div class="tx-group">
@@ -19,11 +19,11 @@
                 <select name="sender_account_id" class="tx-input" required>
                     <option value="" disabled selected>Select account to debit</option>
                     {% for acc in accounts %}
-                    {% if acc.status == 'ACTIVE' %}
-                    <option value="{{ acc.accountid }}">
-                        {{ acc.accounttype }} | {{ acc.accountnumber }} (Balance: ₹{{ acc.balance }})
-                    </option>
-                    {% endif %}
+                        {% if acc.status == 'ACTIVE' %}
+                            <option value="{{ acc.accountid }}">
+                                {{ acc.accounttype }} | {{ acc.accountnumber }} (Balance: ₹{{ acc.balance }})
+                            </option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>

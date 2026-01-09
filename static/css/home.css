@@ -1,7 +1,98 @@
 .dashboard-container {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 30px 40px; 
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.dashboard-header h2 {
+    color: #1a365d;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -1px;
+    font-size: 1.75rem;
+}
+
+.dashboard-header h2 span {
+    color: #c5a059; 
+    font-weight: 400;
+}
+
+.engine-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: #e2e8f0;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.data-node {
+    background: white;
+    padding: 25px;
+    transition: background 0.2s ease;
+}
+
+.data-node:hover {
+    background: #fdfdfd;
+}
+
+.node-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.node-value {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    word-break: break-all;
+}
+
+.status-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+}
+
+.status-text {
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #10b981;
+    text-transform: uppercase;
 }
 
 .card-footer {
@@ -272,13 +363,12 @@
     padding-top: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
-    flex-wrap: wrap; /* Allows wrapping on very small widths */
+    flex-wrap: wrap;
     gap: 8px;
     justify-content: space-between;
     align-items: center;
 }
 
-/* Base style for the new card buttons */
 .btn-card-action {
     font-size: 0.65rem;
     color: white;
@@ -291,7 +381,7 @@
     border-radius: 4px;
     transition: all 0.3s;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    flex: 1; /* Makes buttons grow equally */
+    flex: 1;
     text-align: center;
 }
 
@@ -300,7 +390,6 @@
     color: var(--primary-navy);
 }
 
-/* Specific styling for deactivate to stay red-ish */
 .btn-deactivate {
     font-size: 0.65rem;
     color: #ffb3b3;
@@ -311,7 +400,7 @@
     border: 1px solid rgba(255, 179, 179, 0.3);
     border-radius: 4px;
     transition: all 0.3s;
-    flex: 1.2; /* Slightly wider for the longer text */
+    flex: 1.2;
     text-align: center;
 }
 
@@ -336,7 +425,6 @@
     color: #ef4444;
 }
 
-/* Empty state styling */
 .empty-ledgers {
     padding: 40px; 
     background: white; 

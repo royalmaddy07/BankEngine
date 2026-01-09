@@ -16,5 +16,5 @@ urlpatterns = [
 
     path('statements/', views.statements, name='statements'),
 
-    path('deactivate_account/<int:pk>', views.deactivate_account, name='deactivate_account')
+    path('deactivate_account/<int:pk>', views.deactivate_account, name='deactivate_account'),
 ]
