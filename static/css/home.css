@@ -266,3 +266,82 @@
     background: var(--primary-navy);
     color: white;
 }
+
+.card-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping on very small widths */
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Base style for the new card buttons */
+.btn-card-action {
+    font-size: 0.65rem;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex: 1; /* Makes buttons grow equally */
+    text-align: center;
+}
+
+.btn-card-action:hover {
+    background: white;
+    color: var(--primary-navy);
+}
+
+/* Specific styling for deactivate to stay red-ish */
+.btn-deactivate {
+    font-size: 0.65rem;
+    color: #ffb3b3;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: 800;
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 179, 179, 0.3);
+    border-radius: 4px;
+    transition: all 0.3s;
+    flex: 1.2; /* Slightly wider for the longer text */
+    text-align: center;
+}
+
+.btn-deactivate:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.permanently-closed {
+    width: 100%;
+    text-align: center;
+    font-size: 0.65rem; 
+    color: #cbd5e1; 
+    font-weight: 800;
+}
+
+.limit-reached {
+    opacity: 0.5; 
+    cursor: not-allowed; 
+    border-color: #ef4444; 
+    color: #ef4444;
+}
+
+/* Empty state styling */
+.empty-ledgers {
+    padding: 40px; 
+    background: white; 
+    border-radius: 15px; 
+    text-align: center; 
+    grid-column: 1/-1; 
+    border: 2px dashed #cbd5e1;
+}

@@ -14,17 +14,14 @@
                 <span class="label">Auth Identity</span>
                 <span class="value">{{ request.user.username }}</span>
             </div>
-            
             <div class="data-group">
                 <span class="label">System Email</span>
                 <span class="value">{{ request.user.email }}</span>
             </div>
-
             <div class="data-group">
                 <span class="label">Linked Phone</span>
                 <span class="value">{{ request.user.users.phone }}</span>
             </div>
-
             <div class="data-group">
                 <span class="label">Engine Status</span>
                 <div><span class="status-pill">{{ request.user.users.status }}</span></div>
@@ -39,9 +36,7 @@
                 {% if active_acc_count < 5 %}
                     <a href="{% url 'new_account' %}" class="btn-action">+ New Account</a>
                 {% else %}
-                    <span class="btn-action" style="opacity: 0.5; cursor: not-allowed; border-color: #ef4444; color: #ef4444;" title="Maximum account limit reached">
-                    🔒 Account Slots Full (5/5)
-                    </span>
+                    <span class="btn-action limit-reached">🔒 Account Slots Full (5/5)</span>
                 {% endif %}
                 <a href="{% url 'transfer' %}" class="btn-action">Transfer Funds</a>
             </div>
@@ -69,27 +64,26 @@
 
                 <div class="card-footer">
                     {% if acc.status == 'ACTIVE' %}
+                        <a href="{% url 'transfer' %}?from={{ acc.accountid }}" class="btn-card-action" title="Transfer from this account">
+                            Transfer
+                        </a>
+                        <a href="{% url 'statements' %}" class="btn-card-action" title="Get PDF Statement">
+                            Statement
+                        </a>
                         <a href="{% url 'deactivate_account' acc.accountid %}" class="btn-deactivate">
-                            Deactivate Ledger
+                            Deactivate
                         </a>
                     {% else %}
-                        <span style="font-size: 0.65rem; color: #cbd5e1; font-weight: 800;">PERMANENTLY CLOSED</span>
+                        <span class="permanently-closed">PERMANENTLY CLOSED</span>
                     {% endif %}
                 </div>
             </div>
             {% empty %}
-            <div style="padding: 40px; background: white; border-radius: 15px; text-align: center; grid-column: 1/-1; border: 2px dashed #cbd5e1;">
-                <p style="color: #64748b;">No active ledgers found for this identity.</p>
-                <a href="{% url 'new_account' %}" class="btn-provision" style="text-decoration: none; display: inline-block; margin-top: 10px; background: var(--primary-navy); color: white; padding: 10px 20px; border-radius: 5px;">Deploy First Account</a>
+            <div class="empty-ledgers">
+                <p>No active ledgers found for this identity.</p>
+                <a href="{% url 'new_account' %}" class="btn-provision">Deploy First Account</a>
             </div>
             {% endfor %}
         </div>
-
-        <div class="section-header">
-            <h3>System Audit Log (Recent Activity)</h3>
         </div>
-        <div style="background: white; padding: 20px; border-radius: 15px; color: #94a3b8; text-align: center;">
-            Transaction ledger is currently empty.
-        </div>
-    </div>
 {% endblock %}
