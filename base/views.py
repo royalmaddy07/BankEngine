@@ -83,15 +83,19 @@ def logout_user(request):
     messages.success(request, 'Loggedout Successfully!')
     return redirect('login')
 
-
 # base/home page view :
 def home(request):
-    accounts = Accounts.objects.filter(userid = request.user.users)
-    active_acc_count = accounts.filter(status = 'ACTIVE').count()
-    context = {
-        'accounts' : accounts,
-        'active_acc_count' : active_acc_count,
-    }
+    try:
+        accounts = Accounts.objects.filter(userid = request.user.users)
+        active_acc_count = accounts.filter(status = 'ACTIVE').count()
+        context = {
+            'accounts' : accounts,
+            'active_acc_count' : active_acc_count,
+        }
+    except RelationalObjectDoesNotExist:
+        # if the user is the admin himself
+        messages.error(request, "System Identity not found! Please Login as a user")
+        return redirect("login")
     return render(request, 'base/home.html', context)
 
 # view for opening new account ->
