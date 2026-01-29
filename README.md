@@ -47,6 +47,17 @@ Ledgers follow a strict state flow:
 2.  **BLOCKED:** System-triggered state when active liquidity is detected during a termination request.
 3.  **TERMINATED:** Permanent deactivation; the node is frozen in the database for audit purposes but removed from the active engine.
 
+### 📸 Screenshots
+![ER Diagram of the Database](assets/ER-Diagram.png)
+
+![Authentication/authorization](assets/image1.png)
+
+![Dashboard](assets/image2.png)
+
+![Funds Tranfer](assets/image3.png)
+
+![Ledger Deactivation](assets/image4.png)
+
 ## 🚦 Getting Started
 
 1. **Clone the repository:**
