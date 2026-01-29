@@ -35,7 +35,7 @@ BankEngine is a robust, full-stack financial system designed to manage multi-tie
 
 * **Language:** Python 3.10+
 * **Framework:** Django 4.x (Monolithic Architecture)
-* **Database:** PostgreSQL (Production) / SQLite (Development)
+* **Database:** MySQL (Production/Development)
 * **Frontend:** Modular CSS3, Vanilla JavaScript (ES6+), Django Templates
 
 ## 🔧 System Design & Logic
