@@ -54,15 +54,19 @@ Ledgers follow a strict state flow:
    git clone [https://github.com/yourusername/BankEngine.git](https://github.com/yourusername/BankEngine.git)
 
 2. **Setup Virtual Enviroument**
+    ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 3. **Install Dependencies**
+    ```bash
     pip install -r requirements.txt
 
 5. **Make Database Migrations**
+    ```bash
     python manage.py makemigrations
     python manage.py migrate
 
 4. **Run Server**
+    ```bash
     python manage.py runserver
