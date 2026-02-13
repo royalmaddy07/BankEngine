@@ -90,8 +90,10 @@ def logout_user(request):
     messages.success(request, 'Loggedout Successfully!')
     return redirect('login')
 
+################################################################################################################
+
 # base/home page view :
-def home(request):
+def home1(request):
     try:
         accounts = Accounts.objects.filter(userid = request.user.users)
         active_acc_count = accounts.filter(status = 'ACTIVE').count()
@@ -104,6 +106,23 @@ def home(request):
         messages.error(request, "System Identity not found! Please Login as a user")
         return redirect("login")
     return render(request, 'base/home.html', context)
+
+# converting Home view to DRF APIView -> 
+class HomeAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        accounts = Accounts.objects.filter(userid = request.user.users)
+        active_acc_count = accounts.filter(status = 'ACTIVE').count()
+
+        serializer = AccountSerializer(accounts, many=True)
+
+        return Response({
+            'active_acc_count' : active_acc_count,
+            "accounts" : serializer.data
+        })
+
+#################################################################################################################
 
 # view for opening new account ->
 def new_account(request):

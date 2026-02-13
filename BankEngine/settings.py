@@ -25,7 +25,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'base'
+    'base',
+    'rest_framework',# donot forget to add this after downloading djangorestframework
+    # without this DRF templates will not load
 ]
 
 MIDDLEWARE = [
