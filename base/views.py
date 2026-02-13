@@ -10,6 +10,13 @@ import random
 # initialisation views : Login, Logout and Register
 from django.db import IntegrityError
 
+# DRF api development : 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from .serializers import TransactionSerializer, AccountSerializer
+
 def register_user(request):
     if request.method == 'POST':
         details = request.POST
