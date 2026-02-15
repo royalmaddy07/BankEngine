@@ -166,6 +166,15 @@ def new_account(request):
 
     return render(request, 'base/new_account.html')
 
+# converting new_account view to APIView
+class NewAccountAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    class post(self,request):
+        
+
+#################################################################################################################
+
 # view logic for deactivating a ledger ->
 def deactivate_account(request, pk):
     account = Accounts.objects.get(accountid = pk, userid = request.user.users)
@@ -191,6 +200,8 @@ def deactivate_account(request, pk):
 
     return render(request, 'base/deactivate_account.html', context)
 
+#################################################################################################################
+
 # view for performing a transaction ->
 def transfer(request):
     accounts = Accounts.objects.filter(userid = request.user.users)
@@ -198,6 +209,8 @@ def transfer(request):
     if request.method == 'POST':
         return render(request, 'base/success.html')
     return render(request, 'base/transfer.html', context)
+
+################################################################################################################
 
 # view for retrieving bank statements ->
 def statements(request):
