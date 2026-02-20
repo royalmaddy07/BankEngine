@@ -5,6 +5,7 @@ from django.utils import timezone # for storing time related fields
 from django.db import transaction, IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.db.models import Q
 import random
 from decimal import Decimal
 
@@ -347,9 +348,50 @@ def transfer(request):
 # view for retrieving bank statements ->
 def statements(request):
     user_accounts = Accounts.objects.filter(userid = request.user.users)
+    selected_account_id = request.GET.get('account_id')
+
+    ledger_qs = Ledgerentries.objects.select_related(
+        'transactionid',
+        'accountid',
+        'transactionid__fromaccountid',
+        'transactionid__toaccountid'
+    ).filter(accountid__userid=request.user.users)
+
+    if selected_account_id:
+        ledger_qs = ledger_qs.filter(accountid__accountid=selected_account_id)
+
+    ledger_qs = ledger_qs.order_by('-createdate')
+
+    transactions = []
+
+    for entry in ledger_qs:
+
+        txn = entry.transactionid
+
+        # Determine counterparty
+        if entry.entrytype == 'DEBIT':
+            other_party = txn.toaccountid.accountnumber
+            description = f"Transfer to {other_party}"
+        else:
+            other_party = txn.fromaccountid.accountnumber
+            description = f"Transfer from {other_party}"
+
+        transactions.append({
+            'id': txn.transactionid,
+            'created_at': entry.createdate,
+            'description': description,
+            'other_party': other_party,
+            'type': entry.entrytype,
+            'amount': entry.amount
+        })
+
     context = {
-        'user_accounts' : user_accounts
+        'user_accounts': user_accounts,
+        'transactions': transactions
     }
+
+    return render(request, 'base/statements.html', context)
+
     return render(request, 'base/statements.html', context)
 
 # view for add payees
