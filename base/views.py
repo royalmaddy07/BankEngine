@@ -6,6 +6,7 @@ from django.db import transaction, IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 import random
+from decimal import Decimal
 
 # initialisation views : Login, Logout and Register
 from django.db import IntegrityError
@@ -15,7 +16,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .serializers import TransactionSerializer, AccountSerializer
+from .serializers import  UserSerializer, TransactionSerializer, AccountSerializer
 
 def register_user(request):
     if request.method == 'POST':
@@ -93,7 +94,7 @@ def logout_user(request):
 ################################################################################################################
 
 # base/home page view :
-def home1(request):
+def home(request):
     try:
         accounts = Accounts.objects.filter(userid = request.user.users)
         active_acc_count = accounts.filter(status = 'ACTIVE').count()
@@ -167,11 +168,39 @@ def new_account(request):
     return render(request, 'base/new_account.html')
 
 # converting new_account view to APIView
-class NewAccountAPI(APIView):
+class CreateAccountAPI(APIView):
     permission_classes = [IsAuthenticated]
+    # why use this line of code? accounts should only be created by logged-in users.
+    # This ensures that 1. anonymous users cannot call APIView
+    # 2. request.user is available
 
-    class post(self,request):
+    def post(self,request):
+        account_count = Accounts.objects.filter(userid=request.user.users, status='ACTIVE').count()
+
+        if account_count >= 5:
+            return Response({'error' : 'Max 5 active accounts are allowed'}, status=400)
+
+        # extract the accounttype and initial balance details from the post request:
+        accType = request.data.get('accounttype')
+        initial_balance = request.data.get('balance')
         
+        while True:# same logic as before for creating a random 10 digit account number
+            generated_acc_no = str(random.randint(1000000000, 9999999999))
+            if not Accounts.objects.filter(accountnumber=generated_acc_no).exists():
+                break
+        
+        new_account = Accounts.objects.create( # same logic for creating the new account object in the DB
+            userid=request.user.users,
+            accountnumber=generated_acc_no,
+            accounttype=accType,
+            balance=initial_balance,
+            status='ACTIVE',
+            createdate=timezone.now(),
+        )
+
+        serializer = AccountSerializer(new_account)
+        # why use ModelSerializer? automatically converts DecimalField, etc to JSON format
+        return Response(serializer.data, status=201)
 
 #################################################################################################################
 
@@ -206,8 +235,111 @@ def deactivate_account(request, pk):
 def transfer(request):
     accounts = Accounts.objects.filter(userid = request.user.users)
     context = {'accounts' : accounts}
+
     if request.method == 'POST':
-        return render(request, 'base/success.html')
+        # checkbox clicked hona chahiye
+        if not request.POST.get('confirm_tx'):
+            messages.error(request, "You must confirm the transaction checkbox")
+            return render(request, 'base/transfer.html', context)
+
+        # first and foremost thing is to verify the password
+        verify_password = request.POST.get('verify_password')
+
+        if not verify_password or not request.user.check_password(verify_password):
+            messages.error(request, "Incorrect password.")
+            return render(request, 'base/transfer.html', context)
+
+        # fetch the from_accounts object
+        from_account_no = request.POST.get('from_account')
+        # fetch the to_accounts object
+        to_account_no = request.POST.get('to_account')
+        # fetch the amount object
+        amount = request.POST.get('amount')
+
+        # user cannot transfer from an account to same
+        if from_account_no == to_account_no:
+            messages.error(request, "Cannot transfer to the same account.")
+            return render(request, 'base/transfer.html', context)
+
+        try: # try-catch block for the transaction
+            amount = Decimal(amount)
+            if amount<=0:
+                messages.error(request, "Transfer amount must be positive")
+                return render(request, 'base/failure.html', context)
+
+            with transaction.atomic():# start the transaction
+                # lock the accounts for sender and reciever -> concurrency control
+                from_account = Accounts.objects.select_for_update().get(
+                    accountnumber=from_account_no,
+                    userid=request.user.users,
+                    status='ACTIVE'
+                )
+
+                to_account = Accounts.objects.select_for_update().get(
+                    accountnumber=to_account_no,
+                    status='ACTIVE'
+                )
+
+                if from_account.balance < amount:
+                    messages.error(request, "Insufficient funds.")
+                    return render(request, 'base/transfer.html', context)
+                
+                # transaction Status object
+                success_status, _ = Transactionstatus.objects.get_or_create(statusname='SUCCESS')
+
+                # create transaction record object
+                transaction_obj = Transactions.objects.create(
+                    fromaccountid=from_account,
+                    toaccountid=to_account,
+                    amount=amount,
+                    transactiontype='TRANSFER',
+                    statusid=success_status,
+                    createdate=timezone.now()
+                )
+
+                # perform transaction
+                # Deduct from sender
+                from_account.balance -= amount
+                from_account.save()
+                # Credit receiver
+                to_account.balance += amount
+                to_account.save()
+
+                # Create Ledger Entry (DEBIT)
+                Ledgerentries.objects.create(
+                    transactionid=transaction_obj,
+                    accountid=from_account,
+                    entrytype='DEBIT',
+                    amount=amount,
+                    createdate=timezone.now()
+                )
+
+                # Create Ledger Entry (CREDIT)
+                Ledgerentries.objects.create(
+                    transactionid=transaction_obj,
+                    accountid=to_account,
+                    entrytype='CREDIT',
+                    amount=amount,
+                    createdate=timezone.now()
+                )
+
+                # Create Audit Log
+                Auditlog.objects.create(
+                    entityname='Transactions',
+                    entityid=transaction_obj.transactionid,
+                    action='TRANSFER_CREATED',
+                    performedby=request.user.users.userid,
+                    createdate=timezone.now()
+                )
+
+                return render(request, 'base/success.html', {'transaction': transaction_obj})
+
+        except Accounts.DoesNotExist:
+            messages.error(request, "Invalid account details.")
+
+        except Exception as e:
+            messages.error(request, f"System error: {str(e)}")
+
     return render(request, 'base/transfer.html', context)
 
 ################################################################################################################

@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.login_user, name='login'),
 
-    path('home/', views.home1, name='home'),
+    path('home/', views.home, name='home'),
     path('api/home/', views.HomeAPI.as_view(), name='home-api'),
 
     path('register/', views.register_user, name='register'),
@@ -12,6 +12,7 @@ urlpatterns = [
     path('logout/', views.logout_user, name='logout'),
 
     path('new_account/', views.new_account, name="new_account"),
+    path('api/accounts/create', views.CreateAccountAPI.as_view(), name='create-account-api'),
 
     path('transfer/', views.transfer, name='transfer'),
 

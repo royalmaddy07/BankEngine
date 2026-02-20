@@ -69,11 +69,11 @@
             
             <div class="tx-group">
                 <label>Source Account (Debit)</label>
-                <select name="sender_account_id" class="tx-input" required>
+                <select name="from_account" class="tx-input" required>
                     <option value="" disabled selected>Select account to debit</option>
                     {% for acc in accounts %}
                         {% if acc.status == 'ACTIVE' %}
-                            <option value="{{ acc.accountid }}" {% if preselected_id == acc.accountid|stringformat:"s" %}selected{% endif %}>
+                            <option value="{{ acc.accountnumber }}" {% if preselected_id == acc.accountid|stringformat:"s" %}selected{% endif %}>
                                 {{ acc.accounttype }} | {{ acc.accountnumber }} (Balance: ₹{{ acc.balance }})
                             </option>
                         {% endif %}
@@ -94,7 +94,7 @@
                     {% endfor %}
                 </select>
 
-                <input type="text" name="receiver_acc_no" id="receiver_acc_no" 
+                <input type="text" name="to_account" id="receiver_acc_no" 
                        class="tx-input" style="border-top-left-radius: 0; border-top-right-radius: 0; font-family: 'JetBrains Mono', monospace;" 
                        placeholder="Enter Account Number manually" 
                        value="{{ request.GET.to_acc|default:'' }}" required>
@@ -117,7 +117,7 @@
                 </div>
 
                 <div style="display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; background: white; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                    <input type="checkbox" id="confirm_tx" required style="margin-top: 4px; cursor: pointer;">
+                    <input type="checkbox" id="confirm_tx" name="confirm_tx" required style="margin-top: 4px; cursor: pointer;">
                     <label for="confirm_tx" style="font-size: 0.8rem; color: #475569; font-weight: 500; text-transform: none; cursor: pointer; line-height: 1.4;">
                         I verify that the recipient details are accurate and acknowledge that financial transfers are <strong>final and irreversible</strong>.
                     </label>
