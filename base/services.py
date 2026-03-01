@@ -4,6 +4,8 @@ from django.utils import timezone
 from decimal import Decimal
 from .models import Users, Transactions, Transactionstatus, Accounts, Auditlog, Ledgerentries
 from django.contrib.auth.models import User # this is django User model used for authentication
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 # ===============================================================================================================
 
@@ -30,6 +32,24 @@ class RegistrationService:
         )# create a user banking profile
 
         return banking_profile
+
+# ===============================================================================================================
+
+class LoginService:
+    @staticmethod
+    def login_user(username, password):
+        user = authenticate(username=username, password=password)
+
+        if not user:
+            raise ValueError("Invalid Credentials")
+        if not user.is_active:
+            raise ValueError("User account is inactive.")
+
+        token, created = Token.objects.get_or_create(user=user)# for token based authentication -> 
+        return {
+            "user": user,
+            "token": token.key
+        }
 
 #################################################################################################################
 

@@ -18,8 +18,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import  UserSerializer, TransactionSerializer, AccountSerializer, TransferSerializer
-from .serializers import RegistrationSerializer
-from .services import RegistrationService ,TransferService
+from .serializers import RegistrationSerializer, LoginSerializer
+from .services import RegistrationService ,TransferService, LoginService
 
 def register_user(request):
     if request.method == 'POST':
@@ -133,6 +133,34 @@ def login_user(request):
         
     return render(request, 'base/login.html')
 
+class LoginAPI(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                'success' : False,
+                'error' : serializer.errors
+            }, status=400)
+        try:
+            result = LoginService.login_user(
+                username=serializer.validated_data['username'],
+                password=serializer.validated_data['password']
+            )
+            return Response(
+                {
+                    "success": True,
+                    "token": result["token"]
+                },
+                status=200
+            )
+        except ValueError as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
 def logout_user(request):
     logout(request)

@@ -48,6 +48,17 @@ class RegistrationSerializer(serializers.Serializer):
 
 # ===============================================================================================================
 
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=50)
+    password = serializers.CharField(min_length=6)
+
+    def validate(self, data):
+        if not data["username"] or not data["password"]:
+            raise serializers.ValidationError("Both username and password are required.")
+        return data
+
+# ===============================================================================================================
+
 class TransferSerializer(serializers.Serializer):
     # role of this serializer : validation of the data types of the fields
     # amount validation & checking whether the user is trying to send the money to the same account itself
