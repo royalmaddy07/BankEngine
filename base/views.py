@@ -19,7 +19,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import  UserSerializer, TransactionSerializer, AccountSerializer, TransferSerializer
 from .serializers import RegistrationSerializer, LoginSerializer
-from .services import RegistrationService ,TransferService, LoginService
+from .services import RegistrationService ,TransferService, LoginService, LogoutService
 
 def register_user(request):
     if request.method == 'POST':
@@ -162,6 +162,27 @@ class LoginAPI(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+#################################################################################################################
+
+class LogoutAPI(APIView):
+    # note : permission_classes = [IsAuthenticated] -> this should not remain empty, since logout requires
+    # a valid token. An unauthenticated request to logout doesn't make sense and should be rejected with a 401.
+    # while registration and login api donot require tokens
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        # No serializer is needed. Since there is no input data to validate, token is pulled straight
+        try:
+            LogoutService.logout_user(request.user)
+            return Response({
+                "success" : True, 
+                "message" : "logged out successfully"
+            }, status=200)
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
 def logout_user(request):
     logout(request)
     messages.success(request, 'Loggedout Successfully!')

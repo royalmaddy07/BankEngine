@@ -50,6 +50,13 @@ class LoginService:
             "user": user,
             "token": token.key
         }
+    
+# ===============================================================================================================
+
+class LogoutService:
+    @staticmethod
+    def logout_user(user):
+        Token.objects.filter(user=user).delete()
 
 #################################################################################################################
 

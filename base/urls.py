@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/register', views.RegistrationAPI.as_view(), name='register-api'),
 
     path('logout/', views.logout_user, name='logout'),
+    path('api/logout', views.LogoutAPI.as_view(), name="api-logout"),
 
     path('new_account/', views.new_account, name="new_account"),
     path('api/accounts/create', views.CreateAccountAPI.as_view(), name='create-account-api'),
