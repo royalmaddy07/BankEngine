@@ -30,4 +30,6 @@ urlpatterns = [
     path('api/beneficiaries', views.BeneficiariesAPI.as_view(), name='beneficiaries-api'),
 
     path('fixed_deposits/', views.fixed_deposits, name="fixed-deposits"),
+    path('api/fixed_deposits', views.FixedDepositsAPI.as_view(), name='fixed-deposits-api'),
+    path('api/fixed_deposits/<int:fd_id>/cancel', views.FixedDepositsAPI.as_view(), name='cancel-fd-api'),
 ]

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Accounts, Transactions, Users, Transactionstatus, Ledgerentries, Auditlog, Beneficiaries
+from .models import Accounts, Transactions, Users, Transactionstatus, Ledgerentries, Auditlog, Beneficiaries, Fixeddeposits
 
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
@@ -126,4 +126,51 @@ class AddBeneficiarySerializer(serializers.Serializer):
             userid=request.user.users
         ).exists():
             raise serializers.ValidationError("You cannot add your own account as a beneficiary.")
+        return data
+    
+# ==============================================================================================================
+
+class FixedDepositSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fixeddeposits
+        fields = ['fdid', 'accountid', 'amount', 'interestrate', 'durationmonths', 
+                  'maturityamount', 'startdate', 'maturitydate', 'status']
+
+class CreateFDSerializer(serializers.Serializer):
+    account_number = serializers.CharField()
+    amount = serializers.DecimalField(max_digits=20, decimal_places=2)
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("FD amount must be positive.")
+        return value
+
+    def validate_account_number(self, value):
+        if not Accounts.objects.filter(accountnumber=value, status='ACTIVE').exists():
+            raise serializers.ValidationError("Account does not exist or is inactive.")
+        return value
+
+    def validate(self, data):
+        request = self.context.get('request')
+        # account must belong to the logged in user
+        if not Accounts.objects.filter(
+            accountnumber=data['account_number'],
+            userid=request.user.users
+        ).exists():
+            raise serializers.ValidationError("This account does not belong to you.")
+
+        # check sufficient balance
+        account = Accounts.objects.get(accountnumber=data['account_number'])
+        if account.balance < data['amount']:
+            raise serializers.ValidationError("Insufficient balance to create FD.")
+
+        return data
+
+class CancelFDSerializer(serializers.Serializer):
+    verify_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request.user.check_password(data.get('verify_password')):
+            raise serializers.ValidationError("Incorrect password.")
         return data

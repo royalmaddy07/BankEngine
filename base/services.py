@@ -2,7 +2,7 @@
 from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
-from .models import Users, Transactions, Transactionstatus, Accounts, Auditlog, Ledgerentries, Beneficiaries
+from .models import Users, Transactions, Transactionstatus, Accounts, Auditlog, Ledgerentries, Beneficiaries, Fixeddeposits
 from django.contrib.auth.models import User # this is django User model used for authentication
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -213,3 +213,89 @@ class BeneficiaryService:
             }
         )
         return beneficiary, created
+    
+# ===============================================================================================================
+
+class FixedDepositService:
+    INTEREST_RATE = Decimal('5.00')
+    DURATION_MONTHS = 6
+
+    @staticmethod
+    def get_fds(user):
+        return Fixeddeposits.objects.filter(userid=user.users)
+
+    @staticmethod
+    @transaction.atomic
+    def create_fd(user, account_number, amount):
+        account = Accounts.objects.select_for_update().get(
+            accountnumber=account_number,
+            userid=user.users,
+            status='ACTIVE'
+        )
+
+        # calculate maturity amount = amount + (amount * 5% * 6/12)
+        interest = amount * (FixedDepositService.INTEREST_RATE / 100) * Decimal('0.5')
+        maturity_amount = amount + interest
+
+        start_date = timezone.now()
+        maturity_date = start_date + timezone.timedelta(days=180)  # 6 months
+
+        # deduct from account
+        account.balance -= amount
+        account.save()
+
+        fd = Fixeddeposits.objects.create(
+            userid=user.users,
+            accountid=account,
+            amount=amount,
+            interestrate=FixedDepositService.INTEREST_RATE,
+            durationmonths=FixedDepositService.DURATION_MONTHS,
+            maturityamount=maturity_amount,
+            startdate=start_date,
+            maturitydate=maturity_date,
+            status='ACTIVE'
+        )
+
+        # audit log
+        Auditlog.objects.create(
+            entityname='FixedDeposits',
+            entityid=fd.fdid,
+            action='FD_CREATED',
+            performedby=user.users.userid,
+            createdate=timezone.now()
+        )
+
+        return fd
+
+    @staticmethod
+    @transaction.atomic
+    def cancel_fd(user, fd_id):
+        fd = Fixeddeposits.objects.select_for_update().get(
+            fdid=fd_id,
+            userid=user.users
+        )
+
+        if fd.status == 'CANCELLED':
+            raise ValueError("FD is already cancelled.")
+
+        if fd.status == 'MATURED':
+            raise ValueError("Matured FDs cannot be cancelled.")
+
+        # credit back only the original amount on cancellation, no interest
+        account = Accounts.objects.select_for_update().get(accountid=fd.accountid.accountid)
+        account.balance += fd.amount
+        account.save()
+
+        fd.status = 'CANCELLED'
+        fd.save()
+
+        # audit log
+        Auditlog.objects.create(
+            entityname='FixedDeposits',
+            entityid=fd.fdid,
+            action='FD_CANCELLED',
+            performedby=user.users.userid,
+            createdate=timezone.now()
+        )
+
+        return fd

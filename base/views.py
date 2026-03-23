@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Users, Transactions, Transactionstatus, Ledgerentries, Auditlog, Accounts
+from .models import Users, Transactions, Transactionstatus, Ledgerentries, Auditlog, Accounts, Beneficiaries, Fixeddeposits
 from django.contrib.auth.models import User
 from django.utils import timezone # for storing time related fields
 from django.db import transaction, IntegrityError
@@ -18,8 +18,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import  UserSerializer, TransactionSerializer, AccountSerializer, TransferSerializer
-from .serializers import RegistrationSerializer, LoginSerializer, DeactivateAccountSerializer, BeneficiarySerializer, AddBeneficiarySerializer
-from .services import RegistrationService ,TransferService, LoginService, LogoutService, DeactivateAccountService, StatementsService, BeneficiaryService
+from .serializers import RegistrationSerializer, LoginSerializer, DeactivateAccountSerializer, BeneficiarySerializer, AddBeneficiarySerializer, FixedDepositSerializer, CancelFDSerializer, CreateFDSerializer
+from .services import RegistrationService ,TransferService, LoginService, LogoutService, DeactivateAccountService, StatementsService, BeneficiaryService, FixedDepositService
 
 def register_user(request):
     if request.method == 'POST':
@@ -671,3 +671,112 @@ class BeneficiariesAPI(APIView):
 
 def fixed_deposits(request):
     return render(request, 'base/fixed_deposits.html')
+
+class FixedDepositsAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # GET -> view all FDs
+    def get(self, request):
+        try:
+            fds = FixedDepositService.get_fds(user=request.user)
+            serializer = FixedDepositSerializer(fds, many=True)
+            return Response(
+                {
+                    "success": True,
+                    "count": fds.count(),
+                    "fixed_deposits": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    # POST -> create FD
+    def post(self, request):
+        serializer = CreateFDSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+
+        if not serializer.is_valid():
+            return Response(
+                {"success": False, "error": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            fd = FixedDepositService.create_fd(
+                user=request.user,
+                account_number=serializer.validated_data['account_number'],
+                amount=serializer.validated_data['amount']
+            )
+            response_serializer = FixedDepositSerializer(fd)
+            return Response(
+                {
+                    "success": True,
+                    "message": f"FD created successfully. Maturity amount will be {fd.maturityamount} after 6 months.",
+                    "fixed_deposit": response_serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+        except Accounts.DoesNotExist:
+            return Response(
+                {"success": False, "error": "Account not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ValueError as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    # DELETE -> cancel FD
+    def delete(self, request, fd_id):
+        serializer = CancelFDSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+
+        if not serializer.is_valid():
+            return Response(
+                {"success": False, "error": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            fd = FixedDepositService.cancel_fd(
+                user=request.user,
+                fd_id=fd_id
+            )
+            response_serializer = FixedDepositSerializer(fd)
+            return Response(
+                {
+                    "success": True,
+                    "message": f"FD cancelled. {fd.amount} has been credited back to your account.",
+                    "fixed_deposit": response_serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        except Fixeddeposits.DoesNotExist:
+            return Response(
+                {"success": False, "error": "FD not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ValueError as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
