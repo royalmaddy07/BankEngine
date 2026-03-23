@@ -2,7 +2,7 @@
 from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
-from .models import Users, Transactions, Transactionstatus, Accounts, Auditlog, Ledgerentries
+from .models import Users, Transactions, Transactionstatus, Accounts, Auditlog, Ledgerentries, Beneficiaries
 from django.contrib.auth.models import User # this is django User model used for authentication
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -153,13 +153,6 @@ class DeactivateAccountService:
         )
 
         return account
-    
-# ================================================================================================================
-
-class BeneficiaryService:
-    @staticmethod
-    def add_beneficiary(user, beneficiary_acc_no):
-        return True
 
 # ==============================================================================================================
 
@@ -200,3 +193,23 @@ class StatementsService:
             })
 
         return transactions
+    
+# ===============================================================================================================
+
+class BeneficiaryService:
+    @staticmethod
+    def get_beneficiaries(user):
+        return Beneficiaries.objects.filter(userid=user.users)
+
+    @staticmethod
+    def add_beneficiary(user, account_number, nickname=None, addedtype='MANUAL'):
+        beneficiary, created = Beneficiaries.objects.get_or_create(
+            userid=user.users,
+            accountnumber=account_number,
+            defaults={
+                'nickname': nickname,
+                'addedtype': addedtype,
+                'createdate': timezone.now()
+            }
+        )
+        return beneficiary, created

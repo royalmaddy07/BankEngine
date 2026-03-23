@@ -27,8 +27,7 @@ urlpatterns = [
     path('api/accounts/deactivate', views.DeactivateAccountAPI.as_view(), name='deactivate-account-api'),
 
     path('beneficiaries/', views.beneficiaries, name='beneficiaries'),
+    path('api/beneficiaries', views.BeneficiariesAPI.as_view(), name='beneficiaries-api'),
 
     path('fixed_deposits/', views.fixed_deposits, name="fixed-deposits"),
-
-    path('analytics/', views.analytics, name="analytics"),
 ]

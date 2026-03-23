@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Accounts, Transactions, Users, Transactionstatus, Ledgerentries, Auditlog
+from .models import Accounts, Transactions, Users, Transactionstatus, Ledgerentries, Auditlog, Beneficiaries
 
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
@@ -100,4 +100,30 @@ class DeactivateAccountSerializer(serializers.Serializer):
         request = self.context.get('request')
         if not request.user.check_password(data.get('verify_password')):
             raise serializers.ValidationError('Incorrect Password.')
+        return data
+    
+# ==============================================================================================================
+
+class BeneficiarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Beneficiaries
+        fields = ['beneficiaryid', 'accountnumber', 'nickname', 'addedtype', 'createdate']
+
+class AddBeneficiarySerializer(serializers.Serializer):
+    account_number = serializers.CharField()
+    nickname = serializers.CharField(max_length=50, required=False, allow_blank=True)
+
+    def validate_account_number(self, value):
+        if not Accounts.objects.filter(accountnumber=value, status='ACTIVE').exists():
+            raise serializers.ValidationError("Account does not exist or is inactive.")
+        return value
+
+    def validate(self, data):
+        request = self.context.get('request')
+        # user cannot add their own account as a beneficiary
+        if Accounts.objects.filter(
+            accountnumber=data['account_number'],
+            userid=request.user.users
+        ).exists():
+            raise serializers.ValidationError("You cannot add your own account as a beneficiary.")
         return data

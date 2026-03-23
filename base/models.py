@@ -93,3 +93,19 @@ class Beneficiaries(models.Model):
     class Meta:
         managed = False
         db_table = 'beneficiaries'
+
+class Fixeddeposits(models.Model):
+    fdid = models.BigAutoField(db_column='fdID', primary_key=True)
+    userid = models.ForeignKey('Users', models.DO_NOTHING, db_column='userID')
+    accountid = models.ForeignKey('Accounts', models.DO_NOTHING, db_column='accountID')
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    interestrate = models.DecimalField(db_column='interestRate', max_digits=5, decimal_places=2, default=5.00)
+    durationmonths = models.IntegerField(db_column='durationMonths', default=6)
+    maturityamount = models.DecimalField(db_column='maturityAmount', max_digits=20, decimal_places=2)
+    startdate = models.DateTimeField(db_column='startDate')
+    maturitydate = models.DateTimeField(db_column='maturityDate')
+    status = models.CharField(max_length=10, default='ACTIVE')
+
+    class Meta:
+        managed = False
+        db_table = 'fixeddeposits'

@@ -18,8 +18,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import  UserSerializer, TransactionSerializer, AccountSerializer, TransferSerializer
-from .serializers import RegistrationSerializer, LoginSerializer, DeactivateAccountSerializer
-from .services import RegistrationService ,TransferService, LoginService, LogoutService, DeactivateAccountService, StatementsService
+from .serializers import RegistrationSerializer, LoginSerializer, DeactivateAccountSerializer, BeneficiarySerializer, AddBeneficiarySerializer
+from .services import RegistrationService ,TransferService, LoginService, LogoutService, DeactivateAccountService, StatementsService, BeneficiaryService
 
 def register_user(request):
     if request.method == 'POST':
@@ -608,12 +608,66 @@ def statements(request):
 
 # ===============================================================================================================
 
-# view for add payees
 def beneficiaries(request):
     return render(request, 'base/beneficiaries.html')
 
-def analytics(request):
-    return render(request, 'base/analytics.html')
+class BeneficiariesAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            beneficiaries = BeneficiaryService.get_beneficiaries(user=request.user)
+            serializer = BeneficiarySerializer(beneficiaries, many=True)
+            return Response(
+                {
+                    "success": True,
+                    "count": beneficiaries.count(),
+                    "beneficiaries": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    # POST -> manually add a beneficiary
+    def post(self, request):
+        serializer = AddBeneficiarySerializer(
+            data=request.data,
+            context={'request': request}
+        )
+
+        if not serializer.is_valid():
+            return Response(
+                {"success": False, "error": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            beneficiary, created = BeneficiaryService.add_beneficiary(
+                user=request.user,
+                account_number=serializer.validated_data['account_number'],
+                nickname=serializer.validated_data.get('nickname', None),
+                addedtype='MANUAL'
+            )
+            response_serializer = BeneficiarySerializer(beneficiary)
+            return Response(
+                {
+                    "success": True,
+                    "message": "Beneficiary added." if created else "Beneficiary already exists.",
+                    "beneficiary": response_serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+# ==============================================================================================================
 
 def fixed_deposits(request):
     return render(request, 'base/fixed_deposits.html')
