@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, Loader2, ArrowLeft } from 'lucide-react';
+import { Wallet, Loader2, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -146,11 +146,24 @@ const Register = () => {
                   type="password" 
                   required
                   minLength={6}
-                  className="form-input"
+                  className={`form-input ${formData.cpassword ? (formData.password === formData.cpassword ? 'border-green-500/50 focus:border-green-500' : 'border-red-500/50 focus:border-red-500') : ''}`}
                   placeholder="••••••••"
                   value={formData.cpassword}
                   onChange={e => setFormData({...formData, cpassword: e.target.value})}
                 />
+                {formData.cpassword.length > 0 && (
+                  <div className="text-xs mt-1 ml-1">
+                    {formData.password === formData.cpassword ? (
+                      <span className="text-green-400 flex items-center gap-1 animate-fade-in-up">
+                        <CheckCircle2 className="w-3 h-3" /> Passwords match
+                      </span>
+                    ) : (
+                      <span className="text-red-400 flex items-center gap-1 animate-fade-in-up">
+                        <XCircle className="w-3 h-3" /> Passwords do not match
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
